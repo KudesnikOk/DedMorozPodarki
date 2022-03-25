@@ -1,8 +1,8 @@
 package dev.azonov.giftservice.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import dev.azonov.giftservice.model.GiftKind;
-import dev.azonov.giftservice.service.GiftKindService;
+import dev.azonov.giftservice.model.Gift;
+import dev.azonov.giftservice.service.GiftService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -27,23 +27,23 @@ class GiftControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private GiftKindService giftKindServiceMock;
+    private GiftService giftServiceMock;
 
     // There is no Bean for ObjectMapper so getting Jackson converter like this
     @Autowired
     private MappingJackson2HttpMessageConverter springMvcJacksonConverter;
 
-    private String toJson(List<GiftKind> giftKinds) throws JsonProcessingException {
-        return springMvcJacksonConverter.getObjectMapper().writeValueAsString(giftKinds);
+    private String toJson(List<Gift> gifts) throws JsonProcessingException {
+        return springMvcJacksonConverter.getObjectMapper().writeValueAsString(gifts);
     }
 
-    private List<GiftKind> getExpectedKinds() {
-        List<GiftKind> expectedKinds = new ArrayList<>();
+    private List<Gift> getExpectedKinds() {
+        List<Gift> expectedKinds = new ArrayList<>();
 
-        var kind1 = new GiftKind();
-        kind1.setName("car");
-        var kind2 = new GiftKind();
-        kind2.setName("doll");
+        var kind1 = new Gift();
+        kind1.setKind("car");
+        var kind2 = new Gift();
+        kind2.setKind("doll");
         expectedKinds.add(kind1);
         expectedKinds.add(kind2);
 
@@ -52,22 +52,22 @@ class GiftControllerTest {
 
     @Test
     void findAllKindsShouldReturnOkStatus() throws Exception {
-        mockMvc.perform(get("/gifts/kinds")).andDo(print()).andExpect(status().isOk());
+        mockMvc.perform(get("/gifts")).andDo(print()).andExpect(status().isOk());
     }
 
     @Test
     void findAllKindsShouldCallService() throws Exception {
-        mockMvc.perform(get("/gifts/kinds")).andDo(print());
+        mockMvc.perform(get("/gifts")).andDo(print());
 
-        verify(giftKindServiceMock, times(1)).findAll();
+        verify(giftServiceMock, times(1)).findAll();
     }
 
     @Test
     void findAllKindsShouldReturnJson() throws Exception {
-        List<GiftKind> expectedKinds = getExpectedKinds();
-        when(giftKindServiceMock.findAll()).thenReturn(expectedKinds);
+        List<Gift> expectedKinds = getExpectedKinds();
+        when(giftServiceMock.findAll()).thenReturn(expectedKinds);
 
-        MvcResult mvcResult = mockMvc.perform(get("/gifts/kinds")).andReturn();
+        MvcResult mvcResult = mockMvc.perform(get("/gifts")).andReturn();
 
         String expectedResponseBody = toJson(expectedKinds);
         String actualResponseBody = mvcResult.getResponse().getContentAsString();

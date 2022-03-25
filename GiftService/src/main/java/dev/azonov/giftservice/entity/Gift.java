@@ -1,9 +1,12 @@
 package dev.azonov.giftservice.entity;
 
+import lombok.Data;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "gifts")
+@Data
 public class Gift {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,7 +15,7 @@ public class Gift {
     @Basic
     private Integer quantity;
 
-    @OneToOne
-    @JoinColumn(name = "kindId", referencedColumnName = "id", nullable = false, unique = true)
-    private GiftKind kind;
+    @Basic
+    @Column(length = 50)
+    private String kind;
 }

@@ -7,6 +7,7 @@ import lombok.Data;
  */
 
 @Data
-public class GiftKind {
-    private String name;
+public class Gift {
+    private Integer quantity;
+    private String kind;
 }
