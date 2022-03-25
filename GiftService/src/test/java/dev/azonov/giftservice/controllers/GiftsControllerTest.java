@@ -3,6 +3,7 @@ package dev.azonov.giftservice.controllers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -17,7 +18,13 @@ class GiftsControllerTest {
 
     @Test
     public void shouldReturnOkStatus() throws Exception {
-        this.mockMvc.perform(post("/gifts/request")).andDo(print()).andExpect(status().isOk());
+        String requestJson = "{\"firstName\":\"Michael\", \"secondName\":\"Black\", \"giftKind\": \"constructor\"}";
+        mockMvc.perform(
+                post("/gifts/request")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
 }
