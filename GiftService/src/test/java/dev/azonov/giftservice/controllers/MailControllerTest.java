@@ -17,8 +17,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(GiftsController.class)
-class GiftsControllerTest {
+@WebMvcTest(MailController.class)
+class MailControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -46,7 +46,7 @@ class GiftsControllerTest {
         MailRequest request = createRequest("Michael", "Black", null, "constructor");
 
         mockMvc.perform(
-                post("/gifts/request")
+                post("/mails/process")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(request)))
                 .andDo(print())
@@ -57,7 +57,7 @@ class GiftsControllerTest {
     @MethodSource("InvalidInputs")
     public void shouldReturnBadRequestForInvalidInput(MailRequest request) throws Exception {
         mockMvc.perform(
-                        post("/gifts/request")
+                        post("/mails/process")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(toJson(request)))
                 .andDo(print())
@@ -75,7 +75,6 @@ class GiftsControllerTest {
                 createRequest("FirstName", "SecondName", "VeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryLongName", "Gift"),
                 createRequest("FirstName", "SecondName", "MiddleName", "VeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryLongGiftName"),
                 createRequest("A", "SecondName", "MiddleName", "Gift"),
-                createRequest("FirstName", "B", "MiddleName", "Gift"),
-                createRequest("FirstName", "SecondName", "MiddleName", "C"));
+                createRequest("FirstName", "B", "MiddleName", "Gift"));
     }
 }

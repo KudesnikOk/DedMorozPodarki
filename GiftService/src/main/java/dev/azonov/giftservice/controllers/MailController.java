@@ -14,13 +14,13 @@ import javax.validation.Valid;
  * Handle gift requests.
  */
 @RestController
-@RequestMapping("/gifts")
-public class GiftsController {
+@RequestMapping("/mails")
+public class MailController {
 
-    Logger logger = LoggerFactory.getLogger(GiftsController.class);
+    Logger logger = LoggerFactory.getLogger(MailController.class);
 
-    @PostMapping("/request")
-    public void requestGift(@Valid @RequestBody MailRequest request) {
+    @PostMapping("/process")
+    public void processMail(@Valid @RequestBody MailRequest request) {
         logger.info("Gift requested");
     }
 }
