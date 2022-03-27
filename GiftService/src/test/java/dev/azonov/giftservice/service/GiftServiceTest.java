@@ -1,6 +1,8 @@
 package dev.azonov.giftservice.service;
 
+import dev.azonov.giftservice.exceptions.GiftNotFoundException;
 import dev.azonov.giftservice.model.Gift;
+import dev.azonov.giftservice.model.MailRequest;
 import dev.azonov.giftservice.repository.GiftRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -68,5 +72,25 @@ class GiftServiceTest {
 
         List<Gift> actualKinds = giftService.findAll();
         assertThat(actualKinds).isEqualTo(getExpectedGifts(giftsInformation));
+    }
+
+    @Test
+    void getShouldUseRepository() {
+        String kind = "kind";
+        giftService.get(kind);
+
+        verify(giftRepositoryMock, times(1)).findFirstByKind(kind);
+    }
+
+    @Test
+    void sendGiftShouldThrowInCaseGiftIsNotFound() {
+        MailRequest request = new MailRequest();
+        request.setGiftKind("car");
+        Exception exception = assertThrows(GiftNotFoundException.class, () -> giftService.sendGift(request));
+
+        String expectedMessage = "Gift with kind car is not found";
+        String actualMessage = exception.getMessage();
+
+        assertEquals(expectedMessage, actualMessage);
     }
 }

@@ -1,6 +1,7 @@
 package dev.azonov.giftservice.service;
 
 import dev.azonov.giftservice.model.Gift;
+import dev.azonov.giftservice.model.MailRequest;
 
 import java.util.List;
 
@@ -20,4 +21,10 @@ public interface IGiftService {
      * @return gift with given kind
      */
     Gift get(String kind);
+
+    /**
+     * Send gift according to the request
+     * @param request what gift requested and for whom
+     */
+    void sendGift(MailRequest request);
 }

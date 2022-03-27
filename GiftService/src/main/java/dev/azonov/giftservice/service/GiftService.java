@@ -1,6 +1,8 @@
 package dev.azonov.giftservice.service;
 
+import dev.azonov.giftservice.exceptions.GiftNotFoundException;
 import dev.azonov.giftservice.model.Gift;
+import dev.azonov.giftservice.model.MailRequest;
 import dev.azonov.giftservice.repository.GiftRepository;
 import org.springframework.stereotype.Service;
 
@@ -42,5 +44,13 @@ public class GiftService implements IGiftService {
     @Override
     public Gift get(String kind) {
         return mapGift(repository.findFirstByKind(kind));
+    }
+
+    @Override
+    public void sendGift(MailRequest request) {
+        Gift gift = get(request.getGiftKind());
+        if (gift == null) {
+            throw new GiftNotFoundException(request.getGiftKind());
+        }
     }
 }
