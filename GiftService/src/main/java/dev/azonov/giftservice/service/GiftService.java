@@ -30,6 +30,17 @@ public class GiftService implements IGiftService {
         return result;
     }
 
+    private static dev.azonov.giftservice.entity.Gift mapGift(Gift gift) {
+        if (gift == null) {
+            return null;
+        }
+
+        dev.azonov.giftservice.entity.Gift result = new dev.azonov.giftservice.entity.Gift();
+        result.setQuantity(gift.getQuantity());
+        result.setKind(gift.getKind());
+        return result;
+    }
+
     public GiftService(GiftRepository repository) {
         this.repository = repository;
     }
@@ -58,5 +69,7 @@ public class GiftService implements IGiftService {
         if (gift.getQuantity() <= 0) {
             throw new GiftOutOfStockException(giftKind);
         }
+        gift.reduceQuantity();
+        repository.saveAndFlush(mapGift(gift));
     }
 }

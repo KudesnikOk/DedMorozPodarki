@@ -1,5 +1,6 @@
 package dev.azonov.giftservice.model;
 
+import dev.azonov.giftservice.exceptions.InvalidOperationException;
 import lombok.Data;
 
 /**
@@ -8,6 +9,14 @@ import lombok.Data;
 
 @Data
 public class Gift {
-    private Integer quantity;
+    private int quantity;
     private String kind;
+
+    public void reduceQuantity() {
+        if (quantity <= 0) {
+            throw new InvalidOperationException("Quantity is already non positive");
+        }
+
+        quantity--;
+    }
 }

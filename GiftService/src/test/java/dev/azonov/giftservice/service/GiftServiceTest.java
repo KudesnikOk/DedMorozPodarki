@@ -7,6 +7,8 @@ import dev.azonov.giftservice.model.MailRequest;
 import dev.azonov.giftservice.repository.GiftRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -110,5 +112,22 @@ class GiftServiceTest {
         String actualMessage = exception.getMessage();
 
         assertEquals(expectedMessage, actualMessage);
+    }
+
+    @Captor ArgumentCaptor<dev.azonov.giftservice.entity.Gift> giftCaptor;
+    @Test
+    void sendGiftShouldUpdateQuantity() {
+        MailRequest request = new MailRequest();
+        request.setGiftKind("car");
+
+        int quantity = 4;
+        dev.azonov.giftservice.entity.Gift gift = new dev.azonov.giftservice.entity.Gift();
+        gift.setQuantity(quantity);
+        when(giftRepositoryMock.findFirstByKind("car")).thenReturn(gift);
+
+        giftService.sendGift(request);
+
+        verify(giftRepositoryMock, times(1)).saveAndFlush(giftCaptor.capture());
+        assertEquals(quantity - 1, giftCaptor.getValue().getQuantity());
     }
 }
