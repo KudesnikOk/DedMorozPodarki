@@ -74,4 +74,23 @@ class GiftControllerTest {
 
         assertThat(actualResponseBody).isEqualToIgnoringWhitespace(expectedResponseBody);
     }
+
+    @Test
+    void getByKindShouldReturnOkStatus() throws Exception {
+        String kind = "car";
+        when(giftServiceMock.get(kind)).thenReturn(new Gift());
+
+        mockMvc.perform(get("/gifts/" + kind)).andExpect(status().isOk());
+    }
+
+    @Test
+    void getByKindShouldReturnNotFoundForUnknownKind() throws Exception {
+        mockMvc.perform(get("/gifts/car")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getByKindShouldReturnBadRequestForTooLongKind() throws Exception {
+        String longKindName = "veryveryveryveryveryveryveryveryveryveryveryveryverylongkind";
+        mockMvc.perform(get("/gifts/" + longKindName)).andExpect(status().isBadRequest());
+    }
 }

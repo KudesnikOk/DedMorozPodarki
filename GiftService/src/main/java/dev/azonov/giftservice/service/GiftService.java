@@ -17,10 +17,14 @@ public class GiftService implements IGiftService {
      * @return api model for gift
      */
     private static Gift mapGift(dev.azonov.giftservice.entity.Gift gift) {
-        Gift gf = new Gift();
-        gf.setKind(gift.getKind());
-        gf.setQuantity(gift.getQuantity());
-        return gf;
+        if (gift == null) {
+            return null;
+        }
+
+        Gift result = new Gift();
+        result.setKind(gift.getKind());
+        result.setQuantity(gift.getQuantity());
+        return result;
     }
 
     public GiftService(GiftRepository repository) {
@@ -33,5 +37,10 @@ public class GiftService implements IGiftService {
                 .stream()
                 .map(GiftService::mapGift)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Gift get(String kind) {
+        return mapGift(repository.findFirstByKind(kind));
     }
 }

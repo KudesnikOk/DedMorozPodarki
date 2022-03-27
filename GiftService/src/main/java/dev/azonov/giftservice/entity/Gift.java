@@ -16,6 +16,6 @@ public class Gift {
     private Integer quantity;
 
     @Basic
-    @Column(length = 50)
+    @Column(length = 50, unique = true)
     private String kind;
 }
