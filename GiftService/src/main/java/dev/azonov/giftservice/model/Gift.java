@@ -1,5 +1,6 @@
 package dev.azonov.giftservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.azonov.giftservice.exceptions.InvalidOperationException;
 import lombok.Data;
 
@@ -9,7 +10,9 @@ import lombok.Data;
 
 @Data
 public class Gift {
-    private int quantity;
+    @JsonIgnore
+    private Long id;
+    private Integer quantity;
     private String kind;
 
     public void reduceQuantity() {

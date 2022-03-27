@@ -25,6 +25,7 @@ public class GiftService implements IGiftService {
         }
 
         Gift result = new Gift();
+        result.setId(gift.getId());
         result.setKind(gift.getKind());
         result.setQuantity(gift.getQuantity());
         return result;
@@ -36,6 +37,7 @@ public class GiftService implements IGiftService {
         }
 
         dev.azonov.giftservice.entity.Gift result = new dev.azonov.giftservice.entity.Gift();
+        result.setId(gift.getId());
         result.setQuantity(gift.getQuantity());
         result.setKind(gift.getKind());
         return result;
