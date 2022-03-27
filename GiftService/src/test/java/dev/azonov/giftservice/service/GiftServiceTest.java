@@ -1,6 +1,7 @@
 package dev.azonov.giftservice.service;
 
 import dev.azonov.giftservice.exceptions.GiftNotFoundException;
+import dev.azonov.giftservice.exceptions.GiftOutOfStockException;
 import dev.azonov.giftservice.model.Gift;
 import dev.azonov.giftservice.model.MailRequest;
 import dev.azonov.giftservice.repository.GiftRepository;
@@ -89,6 +90,23 @@ class GiftServiceTest {
         Exception exception = assertThrows(GiftNotFoundException.class, () -> giftService.sendGift(request));
 
         String expectedMessage = "Gift with kind car is not found";
+        String actualMessage = exception.getMessage();
+
+        assertEquals(expectedMessage, actualMessage);
+    }
+
+    @Test
+    void sendGiftShouldThrowInCaseGiftIsOutOfStock() {
+        MailRequest request = new MailRequest();
+        request.setGiftKind("car");
+
+        dev.azonov.giftservice.entity.Gift gift = new dev.azonov.giftservice.entity.Gift();
+        gift.setQuantity(0);
+        when(giftRepositoryMock.findFirstByKind("car")).thenReturn(gift);
+
+        Exception exception = assertThrows(GiftOutOfStockException.class, () -> giftService.sendGift(request));
+
+        String expectedMessage = "Gift with kind car is out of stock";
         String actualMessage = exception.getMessage();
 
         assertEquals(expectedMessage, actualMessage);

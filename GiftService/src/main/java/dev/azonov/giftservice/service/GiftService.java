@@ -1,6 +1,7 @@
 package dev.azonov.giftservice.service;
 
 import dev.azonov.giftservice.exceptions.GiftNotFoundException;
+import dev.azonov.giftservice.exceptions.GiftOutOfStockException;
 import dev.azonov.giftservice.model.Gift;
 import dev.azonov.giftservice.model.MailRequest;
 import dev.azonov.giftservice.repository.GiftRepository;
@@ -48,9 +49,14 @@ public class GiftService implements IGiftService {
 
     @Override
     public void sendGift(MailRequest request) {
-        Gift gift = get(request.getGiftKind());
+        String giftKind = request.getGiftKind();
+
+        Gift gift = get(giftKind);
         if (gift == null) {
-            throw new GiftNotFoundException(request.getGiftKind());
+            throw new GiftNotFoundException(giftKind);
+        }
+        if (gift.getQuantity() <= 0) {
+            throw new GiftOutOfStockException(giftKind);
         }
     }
 }
