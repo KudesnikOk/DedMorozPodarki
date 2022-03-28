@@ -1,10 +1,11 @@
 package dev.azonov.giftservice.service;
 
 import dev.azonov.giftservice.entity.ChildEntity;
+import dev.azonov.giftservice.entity.GiftEntity;
 import dev.azonov.giftservice.exceptions.GiftNotDeservedException;
 import dev.azonov.giftservice.exceptions.GiftNotFoundException;
 import dev.azonov.giftservice.exceptions.GiftOutOfStockException;
-import dev.azonov.giftservice.model.Gift;
+import dev.azonov.giftservice.model.GiftModel;
 import dev.azonov.giftservice.model.MailRequest;
 import dev.azonov.giftservice.repository.GiftRepository;
 import org.springframework.stereotype.Service;
@@ -20,27 +21,27 @@ public class GiftService implements IGiftService {
 
     /**
      * Convert db model for gift into api model
-     * @param gift database model
+     * @param giftEntity database model
      * @return api model for gift
      */
-    private static Gift mapGift(dev.azonov.giftservice.entity.Gift gift) {
-        if (gift == null) {
+    private static GiftModel mapGift(GiftEntity giftEntity) {
+        if (giftEntity == null) {
             return null;
         }
 
-        Gift result = new Gift();
-        result.setId(gift.getId());
-        result.setKind(gift.getKind());
-        result.setQuantity(gift.getQuantity());
+        GiftModel result = new GiftModel();
+        result.setId(giftEntity.getId());
+        result.setKind(giftEntity.getKind());
+        result.setQuantity(giftEntity.getQuantity());
         return result;
     }
 
-    private static dev.azonov.giftservice.entity.Gift mapGift(Gift gift) {
+    private static GiftEntity mapGift(GiftModel gift) {
         if (gift == null) {
             return null;
         }
 
-        dev.azonov.giftservice.entity.Gift result = new dev.azonov.giftservice.entity.Gift();
+        GiftEntity result = new GiftEntity();
         result.setId(gift.getId());
         result.setQuantity(gift.getQuantity());
         result.setKind(gift.getKind());
@@ -54,7 +55,7 @@ public class GiftService implements IGiftService {
     }
 
     @Override
-    public List<Gift> findAll() {
+    public List<GiftModel> findAll() {
         return repository.findAll()
                 .stream()
                 .map(GiftService::mapGift)
@@ -62,7 +63,7 @@ public class GiftService implements IGiftService {
     }
 
     @Override
-    public Gift get(String kind) {
+    public GiftModel get(String kind) {
         return mapGift(repository.findFirstByKind(kind));
     }
 
@@ -75,7 +76,7 @@ public class GiftService implements IGiftService {
         }
 
         String giftKind = request.getGiftKind();
-        Gift gift = get(giftKind);
+        GiftModel gift = get(giftKind);
 
         if (gift == null) {
             throw new GiftNotFoundException(giftKind);

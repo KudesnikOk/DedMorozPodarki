@@ -9,7 +9,7 @@ import lombok.Data;
  */
 
 @Data
-public class Gift {
+public class GiftModel {
     @JsonIgnore
     private Long id;
     private Integer quantity;

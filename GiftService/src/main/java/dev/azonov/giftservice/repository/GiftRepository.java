@@ -1,10 +1,10 @@
 package dev.azonov.giftservice.repository;
 
-import dev.azonov.giftservice.entity.Gift;
+import dev.azonov.giftservice.entity.GiftEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GiftRepository extends JpaRepository<Gift, Long> {
-    Gift findFirstByKind(String kind);
+public interface GiftRepository extends JpaRepository<GiftEntity, Long> {
+    GiftEntity findFirstByKind(String kind);
 }

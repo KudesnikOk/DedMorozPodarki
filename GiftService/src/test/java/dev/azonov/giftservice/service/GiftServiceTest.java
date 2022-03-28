@@ -1,9 +1,10 @@
 package dev.azonov.giftservice.service;
 
+import dev.azonov.giftservice.entity.GiftEntity;
 import dev.azonov.giftservice.exceptions.GiftNotDeservedException;
 import dev.azonov.giftservice.exceptions.GiftNotFoundException;
 import dev.azonov.giftservice.exceptions.GiftOutOfStockException;
-import dev.azonov.giftservice.model.Gift;
+import dev.azonov.giftservice.model.GiftModel;
 import dev.azonov.giftservice.model.MailRequest;
 import dev.azonov.giftservice.repository.GiftRepository;
 import org.junit.jupiter.api.Test;
@@ -36,11 +37,11 @@ class GiftServiceTest {
     @Mock
     private EvaluationService evaluationService;
 
-    private List<Gift> getExpectedGifts(Map<String, Integer> giftsInformation) {
-        List<Gift> gifts = new ArrayList<>();
+    private List<GiftModel> getExpectedGifts(Map<String, Integer> giftsInformation) {
+        List<GiftModel> gifts = new ArrayList<>();
 
         for (String kind : giftsInformation.keySet()) {
-            var gift = new Gift();
+            var gift = new GiftModel();
             gift.setKind(kind);
             gift.setQuantity(giftsInformation.get(kind));
             gifts.add(gift);
@@ -49,17 +50,17 @@ class GiftServiceTest {
         return gifts;
     }
 
-    private List<dev.azonov.giftservice.entity.Gift> getLoadedKinds(Map<String, Integer> giftsInformation) {
-        List<dev.azonov.giftservice.entity.Gift> gifts = new ArrayList<>();
+    private List<GiftEntity> getLoadedKinds(Map<String, Integer> giftsInformation) {
+        List<GiftEntity> giftEntities = new ArrayList<>();
 
         for (String kind : giftsInformation.keySet()) {
-            var gift = new dev.azonov.giftservice.entity.Gift();
+            var gift = new GiftEntity();
             gift.setKind(kind);
             gift.setQuantity(giftsInformation.get(kind));
-            gifts.add(gift);
+            giftEntities.add(gift);
         }
 
-        return gifts;
+        return giftEntities;
     }
 
     @Test
@@ -77,7 +78,7 @@ class GiftServiceTest {
 
         when(giftRepositoryMock.findAll()).thenReturn(getLoadedKinds(giftsInformation));
 
-        List<Gift> actualKinds = giftService.findAll();
+        List<GiftModel> actualKinds = giftService.findAll();
         assertThat(actualKinds).isEqualTo(getExpectedGifts(giftsInformation));
     }
 
@@ -109,9 +110,9 @@ class GiftServiceTest {
         MailRequest request = new MailRequest();
         request.setGiftKind("car");
 
-        dev.azonov.giftservice.entity.Gift gift = new dev.azonov.giftservice.entity.Gift();
-        gift.setQuantity(0);
-        when(giftRepositoryMock.findFirstByKind("car")).thenReturn(gift);
+        GiftEntity giftEntity = new GiftEntity();
+        giftEntity.setQuantity(0);
+        when(giftRepositoryMock.findFirstByKind("car")).thenReturn(giftEntity);
         when(evaluationService.isGiftDeserved(any())).thenReturn(true);
 
         Exception exception = assertThrows(GiftOutOfStockException.class, () -> giftService.sendGift(request));
@@ -138,16 +139,16 @@ class GiftServiceTest {
         assertEquals(expectedMessage, actualMessage);
     }
 
-    @Captor ArgumentCaptor<dev.azonov.giftservice.entity.Gift> giftCaptor;
+    @Captor ArgumentCaptor<GiftEntity> giftCaptor;
     @Test
     void sendGiftShouldUpdateQuantity() {
         MailRequest request = new MailRequest();
         request.setGiftKind("car");
 
         int quantity = 4;
-        dev.azonov.giftservice.entity.Gift gift = new dev.azonov.giftservice.entity.Gift();
-        gift.setQuantity(quantity);
-        when(giftRepositoryMock.findFirstByKind("car")).thenReturn(gift);
+        GiftEntity giftEntity = new GiftEntity();
+        giftEntity.setQuantity(quantity);
+        when(giftRepositoryMock.findFirstByKind("car")).thenReturn(giftEntity);
         when(evaluationService.isGiftDeserved(any())).thenReturn(true);
 
         giftService.sendGift(request);

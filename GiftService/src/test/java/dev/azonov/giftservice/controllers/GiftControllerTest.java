@@ -1,7 +1,7 @@
 package dev.azonov.giftservice.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import dev.azonov.giftservice.model.Gift;
+import dev.azonov.giftservice.model.GiftModel;
 import dev.azonov.giftservice.service.GiftService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,16 +33,16 @@ class GiftControllerTest {
     @Autowired
     private MappingJackson2HttpMessageConverter springMvcJacksonConverter;
 
-    private String toJson(List<Gift> gifts) throws JsonProcessingException {
+    private String toJson(List<GiftModel> gifts) throws JsonProcessingException {
         return springMvcJacksonConverter.getObjectMapper().writeValueAsString(gifts);
     }
 
-    private List<Gift> getExpectedKinds() {
-        List<Gift> expectedKinds = new ArrayList<>();
+    private List<GiftModel> getExpectedKinds() {
+        List<GiftModel> expectedKinds = new ArrayList<>();
 
-        var kind1 = new Gift();
+        var kind1 = new GiftModel();
         kind1.setKind("car");
-        var kind2 = new Gift();
+        var kind2 = new GiftModel();
         kind2.setKind("doll");
         expectedKinds.add(kind1);
         expectedKinds.add(kind2);
@@ -64,7 +64,7 @@ class GiftControllerTest {
 
     @Test
     void findAllKindsShouldReturnJson() throws Exception {
-        List<Gift> expectedKinds = getExpectedKinds();
+        List<GiftModel> expectedKinds = getExpectedKinds();
         when(giftServiceMock.findAll()).thenReturn(expectedKinds);
 
         MvcResult mvcResult = mockMvc.perform(get("/gifts")).andReturn();
@@ -78,7 +78,7 @@ class GiftControllerTest {
     @Test
     void getByKindShouldReturnOkStatus() throws Exception {
         String kind = "car";
-        when(giftServiceMock.get(kind)).thenReturn(new Gift());
+        when(giftServiceMock.get(kind)).thenReturn(new GiftModel());
 
         mockMvc.perform(get("/gifts/" + kind)).andExpect(status().isOk());
     }

@@ -1,6 +1,6 @@
 package dev.azonov.giftservice.controllers;
 
-import dev.azonov.giftservice.model.Gift;
+import dev.azonov.giftservice.model.GiftModel;
 import dev.azonov.giftservice.service.GiftService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ public class GiftController {
      * @return list of available gifts
      */
     @GetMapping("")
-    public List<Gift> findAll() {
+    public List<GiftModel> findAll() {
         logger.info("Request to findAll");
 
         return giftService.findAll();
@@ -45,7 +45,7 @@ public class GiftController {
     @GetMapping("/{kind}")
     public ResponseEntity<?> get(@PathVariable("kind") @NotBlank @Size(max = 50) String kind) {
         logger.info("Request to get for gift with kind {}", kind);
-        
+
         return ResponseEntity.of(Optional.ofNullable(giftService.get(kind)));
     }
 }
