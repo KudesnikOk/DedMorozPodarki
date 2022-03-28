@@ -2,7 +2,6 @@ package dev.azonov.giftservice.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import dev.azonov.giftservice.model.GiftModel;
-import dev.azonov.giftservice.model.MailRequest;
 import dev.azonov.giftservice.model.PopulationRequest;
 import dev.azonov.giftservice.service.GiftService;
 import org.junit.jupiter.api.Test;
