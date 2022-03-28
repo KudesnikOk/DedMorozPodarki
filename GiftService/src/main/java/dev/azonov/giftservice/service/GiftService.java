@@ -9,6 +9,7 @@ import dev.azonov.giftservice.model.GiftModel;
 import dev.azonov.giftservice.model.MailRequest;
 import dev.azonov.giftservice.repository.GiftRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,6 +71,7 @@ public class GiftService implements IGiftService {
     }
 
     @Override
+    @Transactional
     public void sendGift(MailRequest request) {
         ChildEntity child = new ChildEntity(request.getFirstName(), request.getMiddleName(), request.getSecondName());
 
