@@ -16,7 +16,14 @@ public class ChildService implements IChildService {
     }
 
     @Override
-    public ChildEntity get(String firstName, String middleName, String secondName) {
-        return childRepository.findFirstByFirstNameAndSecondNameAndMiddleName(firstName, secondName, middleName);
+    public void createOrRead(ChildEntity child) {
+        ChildEntity existentChild =
+                childRepository.findFirstByFirstNameAndSecondNameAndMiddleName(
+                        child.getFirstName(), child.getSecondName(), child.getMiddleName());
+        if (existentChild == null) {
+            childRepository.save(child);
+        } else {
+            child.setId(existentChild.getId());
+        }
     }
 }
