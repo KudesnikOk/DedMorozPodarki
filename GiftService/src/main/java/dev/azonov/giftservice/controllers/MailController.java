@@ -1,5 +1,6 @@
 package dev.azonov.giftservice.controllers;
 
+import dev.azonov.giftservice.exceptions.GiftNotDeservedException;
 import dev.azonov.giftservice.exceptions.GiftNotFoundException;
 import dev.azonov.giftservice.exceptions.GiftOutOfStockException;
 import dev.azonov.giftservice.model.MailRequest;
@@ -35,7 +36,7 @@ public class MailController {
 
         try {
             giftService.sendGift(request);
-        } catch (GiftNotFoundException| GiftOutOfStockException e) {
+        } catch (GiftNotFoundException | GiftOutOfStockException | GiftNotDeservedException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
 
