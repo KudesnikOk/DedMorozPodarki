@@ -15,11 +15,26 @@ public class GiftModel {
     private Integer quantity;
     private String kind;
 
+    /**
+     * Reduce quantity of gifts by one
+     */
     public void reduceQuantity() {
         if (quantity <= 0) {
-            throw new InvalidOperationException("Quantity is already non positive");
+            throw new InvalidOperationException("Can not reduce quantity because it is already non positive");
         }
 
         quantity--;
+    }
+
+    /**
+     * Increase increment of gifts by given amount
+     * @param increment amount of produced gifts
+     */
+    public void increaseQuantity(int increment) {
+        if (increment <= 0) {
+            throw new InvalidOperationException("Can not increase quantity, because increment is not positive");
+        }
+
+        this.quantity += increment;
     }
 }

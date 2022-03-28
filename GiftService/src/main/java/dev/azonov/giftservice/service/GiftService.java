@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +23,8 @@ public class GiftService implements IGiftService {
     private final IEvaluationService evaluationService;
     private final IChildService childService;
     private final IDeliveryService deliveryService;
+
+    private static final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     /**
      * Convert db model for gift into api model
@@ -59,15 +64,27 @@ public class GiftService implements IGiftService {
 
     @Override
     public List<GiftModel> findAll() {
-        return repository.findAll()
-                .stream()
-                .map(GiftService::mapGift)
-                .collect(Collectors.toList());
+        Lock readLock = lock.readLock();
+        try {
+            readLock.lock();
+            return repository.findAll()
+                    .stream()
+                    .map(GiftService::mapGift)
+                    .collect(Collectors.toList());
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public GiftModel get(String kind) {
-        return mapGift(repository.findFirstByKind(kind));
+        Lock readLock = lock.readLock();
+        try {
+            readLock.lock();
+            return mapGift(repository.findFirstByKind(kind));
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
@@ -80,19 +97,46 @@ public class GiftService implements IGiftService {
         }
 
         String giftKind = request.getGiftKind();
-        GiftModel gift = get(giftKind);
 
-        if (gift == null) {
-            throw new GiftNotFoundException(giftKind);
-        }
-        if (gift.getQuantity() <= 0) {
-            throw new GiftOutOfStockException(giftKind);
-        }
-        gift.reduceQuantity();
+        Lock writeLock = lock.writeLock();
+        try {
+            writeLock.lock();
 
-        GiftEntity giftEntity = mapGift(gift);
-        repository.save(giftEntity);
-        childService.createOrRead(child);
-        deliveryService.deliverGift(child, giftEntity);
+            GiftModel gift = get(giftKind);
+
+            if (gift == null) {
+                throw new GiftNotFoundException(giftKind);
+            }
+            if (gift.getQuantity() <= 0) {
+                throw new GiftOutOfStockException(giftKind);
+            }
+            gift.reduceQuantity();
+
+            GiftEntity giftEntity = mapGift(gift);
+            repository.save(giftEntity);
+            childService.createOrRead(child);
+            deliveryService.deliverGift(child, giftEntity);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    @Override
+    public void increaseQuantity(String kind, int increment) {
+        Lock writeLock = lock.writeLock();
+
+        try {
+            writeLock.lock();
+
+            GiftModel gift = get(kind);
+
+            if (gift == null) {
+                throw new GiftNotFoundException(kind);
+            }
+            gift.increaseQuantity(increment);
+            repository.save(mapGift(gift));
+        } finally {
+            writeLock.unlock();
+        }
     }
 }

@@ -27,4 +27,11 @@ public interface IGiftService {
      * @param request what gift requested and for whom
      */
     void sendGift(MailRequest request);
+
+    /**
+     * Increase amount of gifts of given kind by quantity
+     * @param kind gift kind to populate
+     * @param quantity number of gifts produced
+     */
+    void increaseQuantity(String kind, int quantity);
 }

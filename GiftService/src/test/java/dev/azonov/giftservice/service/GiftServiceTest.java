@@ -43,6 +43,9 @@ class GiftServiceTest {
     @Mock
     private ChildService childService;
 
+    @Captor
+    private ArgumentCaptor<GiftEntity> giftCaptor;
+
     private List<GiftModel> getExpectedGifts(Map<String, Integer> giftsInformation) {
         List<GiftModel> gifts = new ArrayList<>();
 
@@ -145,7 +148,6 @@ class GiftServiceTest {
         assertEquals(expectedMessage, actualMessage);
     }
 
-    @Captor ArgumentCaptor<GiftEntity> giftCaptor;
     @Test
     void sendGiftShouldUpdateQuantity() {
         MailRequest request = new MailRequest();
@@ -178,5 +180,37 @@ class GiftServiceTest {
         giftService.sendGift(request);
 
         verify(deliveryService, times(1)).deliverGift(any(), any());
+    }
+
+    @Test
+    void increaseQuantityShouldThrowForUnknownGiftKind() {
+        when(giftRepositoryMock.findFirstByKind("car")).thenReturn(null);
+
+        Exception exception = assertThrows(
+                GiftNotFoundException.class,
+                () -> giftService.increaseQuantity("car", 2));
+
+        String expectedMessage = "Gift with kind car is not found";
+        String actualMessage = exception.getMessage();
+
+        assertEquals(expectedMessage, actualMessage);
+    }
+
+    @Test
+    void increaseQuantityShouldSaveGiftInformationWithIncreasedQuantity() {
+        String kind = "car";
+        int increment = 3;
+        int quantity = 4;
+
+        GiftEntity giftEntity = new GiftEntity();
+        giftEntity.setQuantity(quantity);
+
+        when(giftRepositoryMock.findFirstByKind(kind)).thenReturn(giftEntity);
+
+        giftService.increaseQuantity(kind, increment);
+
+        verify(giftRepositoryMock, times(1)).save(giftCaptor.capture());
+
+        assertEquals(quantity + increment, giftCaptor.getValue().getQuantity());
     }
 }
