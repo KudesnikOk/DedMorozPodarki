@@ -37,6 +37,12 @@ class GiftServiceTest {
     @Mock
     private EvaluationService evaluationService;
 
+    @Mock
+    private DeliveryService deliveryService;
+
+    @Mock
+    private ChildService childService;
+
     private List<GiftModel> getExpectedGifts(Map<String, Integer> giftsInformation) {
         List<GiftModel> gifts = new ArrayList<>();
 
@@ -153,7 +159,24 @@ class GiftServiceTest {
 
         giftService.sendGift(request);
 
-        verify(giftRepositoryMock, times(1)).saveAndFlush(giftCaptor.capture());
+        verify(giftRepositoryMock, times(1)).save(giftCaptor.capture());
         assertEquals(quantity - 1, giftCaptor.getValue().getQuantity());
+    }
+
+    @Test
+    void sendGiftShouldDeliverGift() {
+        MailRequest request = new MailRequest();
+        request.setGiftKind("car");
+        request.setFirstName("Tom");
+
+        int quantity = 4;
+        GiftEntity giftEntity = new GiftEntity();
+        giftEntity.setQuantity(quantity);
+        when(giftRepositoryMock.findFirstByKind("car")).thenReturn(giftEntity);
+        when(evaluationService.isGiftDeserved(any())).thenReturn(true);
+
+        giftService.sendGift(request);
+
+        verify(deliveryService, times(1)).deliverGift(any(), any());
     }
 }

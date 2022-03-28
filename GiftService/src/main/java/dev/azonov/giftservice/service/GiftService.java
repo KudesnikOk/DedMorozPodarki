@@ -18,6 +18,7 @@ public class GiftService implements IGiftService {
     private final GiftRepository repository;
     private final IEvaluationService evaluationService;
     private final IChildService childService;
+    private final IDeliveryService deliveryService;
 
     /**
      * Convert db model for gift into api model
@@ -48,10 +49,11 @@ public class GiftService implements IGiftService {
         return result;
     }
 
-    public GiftService(GiftRepository repository, IEvaluationService evaluationService, IChildService childService) {
+    public GiftService(GiftRepository repository, IEvaluationService evaluationService, IChildService childService, IDeliveryService deliveryService) {
         this.repository = repository;
         this.evaluationService = evaluationService;
         this.childService = childService;
+        this.deliveryService = deliveryService;
     }
 
     @Override
@@ -85,6 +87,10 @@ public class GiftService implements IGiftService {
             throw new GiftOutOfStockException(giftKind);
         }
         gift.reduceQuantity();
-        repository.saveAndFlush(mapGift(gift));
+
+        GiftEntity giftEntity = mapGift(gift);
+        repository.save(giftEntity);
+        childService.createOrRead(child);
+        deliveryService.deliverGift(child, giftEntity);
     }
 }
