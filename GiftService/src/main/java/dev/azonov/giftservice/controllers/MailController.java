@@ -3,7 +3,7 @@ package dev.azonov.giftservice.controllers;
 import dev.azonov.giftservice.exceptions.GiftNotFoundException;
 import dev.azonov.giftservice.exceptions.GiftOutOfStockException;
 import dev.azonov.giftservice.model.MailRequest;
-import dev.azonov.giftservice.service.GiftService;
+import dev.azonov.giftservice.service.IGiftService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +23,9 @@ public class MailController {
 
     private final Logger logger = LoggerFactory.getLogger(MailController.class);
 
-    private final GiftService giftService;
+    private final IGiftService giftService;
 
-    public MailController(GiftService giftService) {
+    public MailController(IGiftService giftService) {
         this.giftService = giftService;
     }
 

@@ -1,5 +1,7 @@
 package dev.azonov.giftservice.service;
 
+import dev.azonov.giftservice.entity.ChildEntity;
+import dev.azonov.giftservice.exceptions.GiftNotDeservedException;
 import dev.azonov.giftservice.exceptions.GiftNotFoundException;
 import dev.azonov.giftservice.exceptions.GiftOutOfStockException;
 import dev.azonov.giftservice.model.Gift;
@@ -13,6 +15,8 @@ import java.util.stream.Collectors;
 @Service
 public class GiftService implements IGiftService {
     private final GiftRepository repository;
+    private final IEvaluationService evaluationService;
+    private final IChildService childService;
 
     /**
      * Convert db model for gift into api model
@@ -43,8 +47,10 @@ public class GiftService implements IGiftService {
         return result;
     }
 
-    public GiftService(GiftRepository repository) {
+    public GiftService(GiftRepository repository, IEvaluationService evaluationService, IChildService childService) {
         this.repository = repository;
+        this.evaluationService = evaluationService;
+        this.childService = childService;
     }
 
     @Override
@@ -62,9 +68,15 @@ public class GiftService implements IGiftService {
 
     @Override
     public void sendGift(MailRequest request) {
-        String giftKind = request.getGiftKind();
+        ChildEntity child = new ChildEntity(request.getFirstName(), request.getMiddleName(), request.getSecondName());
 
+        if (!evaluationService.isGiftDeserved(child)) {
+            throw new GiftNotDeservedException(child.getFullName());
+        }
+
+        String giftKind = request.getGiftKind();
         Gift gift = get(giftKind);
+
         if (gift == null) {
             throw new GiftNotFoundException(giftKind);
         }

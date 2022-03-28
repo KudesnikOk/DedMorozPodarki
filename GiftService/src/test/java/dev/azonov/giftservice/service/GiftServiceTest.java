@@ -1,5 +1,6 @@
 package dev.azonov.giftservice.service;
 
+import dev.azonov.giftservice.exceptions.GiftNotDeservedException;
 import dev.azonov.giftservice.exceptions.GiftNotFoundException;
 import dev.azonov.giftservice.exceptions.GiftOutOfStockException;
 import dev.azonov.giftservice.model.Gift;
@@ -31,6 +32,9 @@ class GiftServiceTest {
 
     @Mock
     private GiftRepository giftRepositoryMock;
+
+    @Mock
+    private EvaluationService evaluationService;
 
     private List<Gift> getExpectedGifts(Map<String, Integer> giftsInformation) {
         List<Gift> gifts = new ArrayList<>();
@@ -89,6 +93,9 @@ class GiftServiceTest {
     void sendGiftShouldThrowInCaseGiftIsNotFound() {
         MailRequest request = new MailRequest();
         request.setGiftKind("car");
+
+        when(evaluationService.isGiftDeserved(any())).thenReturn(true);
+
         Exception exception = assertThrows(GiftNotFoundException.class, () -> giftService.sendGift(request));
 
         String expectedMessage = "Gift with kind car is not found";
@@ -105,10 +112,27 @@ class GiftServiceTest {
         dev.azonov.giftservice.entity.Gift gift = new dev.azonov.giftservice.entity.Gift();
         gift.setQuantity(0);
         when(giftRepositoryMock.findFirstByKind("car")).thenReturn(gift);
+        when(evaluationService.isGiftDeserved(any())).thenReturn(true);
 
         Exception exception = assertThrows(GiftOutOfStockException.class, () -> giftService.sendGift(request));
 
         String expectedMessage = "Gift with kind car is out of stock";
+        String actualMessage = exception.getMessage();
+
+        assertEquals(expectedMessage, actualMessage);
+    }
+
+    @Test
+    void sendGiftShouldThrowInCaseGiftIsNotDeserved() {
+        MailRequest request = new MailRequest();
+        request.setFirstName("Tom");
+        request.setSecondName("Soyer");
+
+        when(evaluationService.isGiftDeserved(any())).thenReturn(false);
+
+        Exception exception = assertThrows(GiftNotDeservedException.class, () -> giftService.sendGift(request));
+
+        String expectedMessage = "Gift for child Tom Soyer is not deserved";
         String actualMessage = exception.getMessage();
 
         assertEquals(expectedMessage, actualMessage);
@@ -124,6 +148,7 @@ class GiftServiceTest {
         dev.azonov.giftservice.entity.Gift gift = new dev.azonov.giftservice.entity.Gift();
         gift.setQuantity(quantity);
         when(giftRepositoryMock.findFirstByKind("car")).thenReturn(gift);
+        when(evaluationService.isGiftDeserved(any())).thenReturn(true);
 
         giftService.sendGift(request);
 
