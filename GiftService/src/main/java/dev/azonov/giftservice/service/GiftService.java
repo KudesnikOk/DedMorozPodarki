@@ -8,9 +8,11 @@ import dev.azonov.giftservice.exceptions.GiftOutOfStockException;
 import dev.azonov.giftservice.model.GiftModel;
 import dev.azonov.giftservice.model.MailRequest;
 import dev.azonov.giftservice.repository.GiftRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -23,8 +25,14 @@ public class GiftService implements IGiftService {
     private final IEvaluationService evaluationService;
     private final IChildService childService;
     private final IDeliveryService deliveryService;
+    private final IProductionService productionService;
 
     private static final ReadWriteLock lock = new ReentrantReadWriteLock();
+
+    @Value("${production.minimum-gifts-threshold}")
+    private String giftThresholdSetting;
+
+    private int giftThreshold;
 
     /**
      * Convert db model for gift into api model
@@ -55,11 +63,27 @@ public class GiftService implements IGiftService {
         return result;
     }
 
-    public GiftService(GiftRepository repository, IEvaluationService evaluationService, IChildService childService, IDeliveryService deliveryService) {
+    public GiftService(
+            GiftRepository repository,
+            IEvaluationService evaluationService,
+            IChildService childService,
+            IDeliveryService deliveryService,
+            IProductionService productionService) {
         this.repository = repository;
         this.evaluationService = evaluationService;
         this.childService = childService;
         this.deliveryService = deliveryService;
+        this.productionService = productionService;
+    }
+
+    @PostConstruct
+    public void Init() {
+        try {
+            giftThreshold = Integer.parseInt(giftThresholdSetting);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            giftThreshold = 5;
+        }
     }
 
     @Override
@@ -97,12 +121,13 @@ public class GiftService implements IGiftService {
         }
 
         String giftKind = request.getGiftKind();
+        GiftModel gift;
 
         Lock writeLock = lock.writeLock();
         try {
             writeLock.lock();
 
-            GiftModel gift = get(giftKind);
+            gift = get(giftKind);
 
             if (gift == null) {
                 throw new GiftNotFoundException(giftKind);
@@ -118,6 +143,10 @@ public class GiftService implements IGiftService {
             deliveryService.deliverGift(child, giftEntity);
         } finally {
             writeLock.unlock();
+        }
+
+        if (gift.getQuantity() < giftThreshold) {
+            productionService.RequestProduction(gift.getKind());
         }
     }
 
