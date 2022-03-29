@@ -14,6 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.stream.Stream;
 
@@ -35,6 +36,9 @@ class MailControllerTest {
 
     @MockBean
     private GiftService giftServiceMock;
+
+    @MockBean
+    private RestTemplate restTemplateMock;
 
     private String toJson(MailRequest request) throws JsonProcessingException {
         return springMvcJacksonConverter.getObjectMapper().writeValueAsString(request);
