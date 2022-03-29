@@ -1,5 +1,6 @@
 package dev.azonov.giftservice.controllers;
 
+import dev.azonov.giftservice.exceptions.GiftNotFoundException;
 import dev.azonov.giftservice.model.GiftModel;
 import dev.azonov.giftservice.model.PopulationRequest;
 import dev.azonov.giftservice.service.GiftService;
@@ -64,7 +65,13 @@ public class GiftController {
             @PathVariable("kind") @NotBlank @Size(max = 50) String kind,
             @Valid @RequestBody PopulationRequest request) {
 
-        giftService.increaseQuantity(kind, request.getIncrement());
+        logger.info("Increasing quantity of {} by {}", kind, request.getIncrement());
+
+        try {
+            giftService.increaseQuantity(kind, request.getIncrement());
+        } catch (GiftNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
 
         return ResponseEntity.ok().build();
     }
