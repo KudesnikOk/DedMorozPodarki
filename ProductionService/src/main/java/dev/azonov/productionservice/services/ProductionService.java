@@ -8,25 +8,45 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProductionService implements IProductionService {
-    final static Logger logger = LoggerFactory.getLogger(ProductionService.class);
+
+    private final static Logger logger = LoggerFactory.getLogger(ProductionService.class);
+
+    private final INotificationService notificationService;
 
     @Value("${production.delayInSeconds}")
-    private String delayInSeconds;
+    private String delayInSecondsSetting;
+
+    @Value("${production.increment}")
+    private String incrementSetting;
+
+    public ProductionService(INotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
 
     @Override
     @Async
     public void startProduction(String kind) {
         long delay;
         try {
-            delay = Long.parseLong(delayInSeconds) * 1000;
+            delay = Long.parseLong(delayInSecondsSetting) * 1000;
         } catch (NumberFormatException e) {
-            delay = 5000L;
+            e.printStackTrace();
+            delay = 1000L;
         }
         try {
             Thread.sleep(delay);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        int increment;
+        try {
+            increment = Integer.parseInt(incrementSetting);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            increment = 1;
+        }
+
+        notificationService.notifyProductionComplete(kind, increment);
         logger.info("Production of {} finished", kind);
     }
 }
