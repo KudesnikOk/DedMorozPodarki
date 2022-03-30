@@ -21,6 +21,7 @@ Gift service expose following endpoints
    {
     "increment": 5
    }
+5. GET localhost:8080/deliveries - lists information about all deliveries that was made
   
 ProductionService expose following endpoints
 1. POST localhost:8081/produce - starts production for gift of requested kind
